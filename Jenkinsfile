@@ -1,23 +1,17 @@
 pipeline {
     agent any
 
-    tools {
-          maven 'localMaven'
-          jdk 'localJDK'
-    }
+
     parameters {
-         string(name: 'tomcat_staging', defaultValue: '54.153.121.139', description: 'Staging Server')
-         string(name: 'tomcat_prod', defaultValue: '13.57.204.205', description: 'Production Server')
+         string(name: 'tomcat_staging', defaultValue: '3.111.245.213', description: 'Staging Server')
+       //  string(name: 'tomcat_prod', defaultValue: '13.57.204.205', description: 'Production Server')
     }
 
-    triggers {
-         pollSCM('* * * * *')
-     }
 
 stages{
         stage('Build'){
             steps {
-                bat 'mvn clean package'
+                sh 'mvn clean package'
             }
             post {
                 success {
@@ -31,15 +25,16 @@ stages{
             parallel{
                 stage ('Deploy to Staging environment'){
                     steps {
-                        bat "echo y | pscp -i C:\\Users\\grvtr\\Desktop\\Project\\AlternativeFiles\\Redis-Key.ppk C:\\Users\\grvtr\\Desktop\\Project\\AlternativeFiles\\*.war ec2-user@${params.tomcat_staging}:/var/lib/tomcat7/webapps"
+                        sh "echo y | pscp -i /home/ubuntu/.ssh/id_ed25519 /var/lib/jenkins/workspace/tomcat-deployment/target/*.war ubuntu@${params.tomcat_staging}:/opt/tomcat/webapps/"
+
                     }
                 }
 
-                stage ("Deploy to Production environment"){
-                    steps {
-                        bat "echo y | pscp -i C:\\Users\\grvtr\\Desktop\\Project\\AlternativeFiles\\Redis-Key.ppk C:\\Users\\grvtr\\Desktop\\Project\\AlternativeFiles\\*.war ec2-user@${params.tomcat_prod}:/var/lib/tomcat7/webapps"
-                    }
-                }
+//                stage ("Deploy to Production environment"){
+ //                   steps {
+ //                       sh "echo y | pscp -i C:\\Users\\grvtr\\Desktop\\Project\\AlternativeFiles\\Redis-Key.ppk C:\\Users\\grvtr\\Desktop\\Project\\AlternativeFiles\\*.war ec2-user@${params.tomcat_prod}:/var/lib/tomcat7/webapps"
+ //                   }
+ //               }
             }
         }
     }
