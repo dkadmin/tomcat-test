@@ -9,6 +9,12 @@ pipeline {
 
 
 stages{
+
+       stage ("Git Checkout"){
+            steps{
+                git credentialsId: 'github', url: 'https://github.com/dkadmin/tomcat-project.git'
+            }
+        }
         stage('Build'){
             steps {
                 sh 'mvn clean package'
